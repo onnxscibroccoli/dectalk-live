@@ -59,6 +59,9 @@ jobs:
             "https://github.com/ibm/plex/raw/master/packages/plex-mono/fonts/complete/woff2/IBMPlexMono-Medium.woff2"
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
