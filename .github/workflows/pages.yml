@@ -1,0 +1,66 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Assemble static site
+        run: |
+          mkdir -p _site/dectalk _site/fonts
+          cp site/index.html site/app.js site/styles.css site/coi-serviceworker.js site/favicon.svg _site/
+          cp site/bridge-worker.js _site/dectalk/
+          npm init -y
+          npm install @echogarden/dectalk-wasm
+          cp node_modules/@echogarden/dectalk-wasm/wasm/dectalk.wasm _site/dectalk/
+          cp node_modules/@echogarden/dectalk-wasm/wasm/dectalk.js _site/dectalk/
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("_site/dectalk/dectalk.js")
+          text = p.read_text()
+          old = "loadWasmModuleToAllWorkers(onMaybeReady){onMaybeReady()}"
+          new = """loadWasmModuleToAllWorkers(onMaybeReady){
+              var poolSize = Module["PTHREAD_POOL_SIZE"] || 8;
+              var pending = [];
+              for (var i = 0; i < poolSize; i++) {
+                PThread.allocateUnusedWorker();
+                pending.push(PThread.loadWasmModuleToWorker(PThread.unusedWorkers[i]));
+              }
+              Promise.all(pending).then(() => onMaybeReady());
+            }"""
+          if old not in text:
+              raise SystemExit("pthread pool patch pattern not found")
+          p.write_text(text.replace(old, new, 1))
+          print("patched dectalk.js")
+          PY
+          curl -fsSL -o _site/fonts/ibm-plex-mono-latin.woff2 \
+            "https://github.com/ibm/plex/raw/master/packages/plex-mono/fonts/complete/woff2/IBMPlexMono-Regular.woff2"
+          curl -fsSL -o _site/fonts/ibm-plex-mono-medium.woff2 \
+            "https://github.com/ibm/plex/raw/master/packages/plex-mono/fonts/complete/woff2/IBMPlexMono-Medium.woff2"
+          touch _site/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

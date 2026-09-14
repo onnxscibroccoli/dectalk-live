@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DECtalk</title>
+    <meta name="description" content="In-browser DECtalk speech synthesizer. Nine voices, phoneme markup, WebAssembly." />
+    <meta name="theme-color" content="#0c0d0b" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script>
+      window.coi = { coepCredentialless: () => true, quiet: true };
+    </script>
+    <script src="./coi-serviceworker.js"></script>
+  </head>
+  <body>
+    <div class="scan" aria-hidden="true"></div>
+    <main>
+      <header>
+        <div>
+          <p class="kicker">DEC · 1983 · US English</p>
+          <h1>DECtalk</h1>
+          <p class="lede">
+            The Digital Equipment Corporation speech synthesizer, compiled to
+            WebAssembly. Nine voices, phoneme markup, entirely in the browser.
+          </p>
+        </div>
+        <div class="status" id="status">
+          <span class="dot boot"></span>
+          <span class="label">Loading DECtalk</span>
+        </div>
+      </header>
+
+      <section class="panel">
+        <label for="utterance">Utterance</label>
+        <textarea id="utterance" rows="7" placeholder="Type text, or DECtalk [:phoneme] markup…"></textarea>
+        <div class="presets" id="presets"></div>
+      </section>
+
+      <section class="panel">
+        <div class="row">
+          <h2>Voice</h2>
+          <p class="note" id="voice-note"></p>
+        </div>
+        <div class="voices" id="voices"></div>
+      </section>
+
+      <section class="panel">
+        <div class="row">
+          <label for="rate">Rate</label>
+          <span class="tabular" id="rate-label">180 wpm</span>
+        </div>
+        <input id="rate" type="range" min="75" max="600" step="5" value="180" />
+        <div class="rate-ends"><span>75</span><span>300</span><span>600</span></div>
+      </section>
+
+      <section class="panel">
+        <div class="actions">
+          <button id="speak" class="primary" type="button">Speak</button>
+          <button id="stop" class="secondary" type="button" disabled>Stop</button>
+          <button id="wav" class="secondary" type="button" disabled>WAV</button>
+        </div>
+        <p class="err" id="notice" hidden></p>
+        <div class="wave-wrap">
+          <svg viewBox="0 0 640 88" class="wave" aria-hidden="true">
+            <path id="wave" d="M 0 44 L 640 44" fill="none" stroke="currentColor" stroke-width="1.5" />
+          </svg>
+        </div>
+      </section>
+
+      <footer>
+        Powered by
+        <a href="https://github.com/echogarden-project/dectalk-wasm" rel="noreferrer" target="_blank">@echogarden/dectalk-wasm</a>.
+        Voices and markup match the original DECtalk US English engine.
+      </footer>
+    </main>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
