@@ -59,3 +59,14 @@ Before modifying `bridge-worker.js` or the COI service worker, understand the We
 Do not claim that the application supports arbitrary DECtalk voices or arbitrary browser environments without testing them. The README's nine voices are the documented supported set.
 
 **Bottom line:** a small, focused browser/WASM speech-synthesis application that is already publicly published.
+
+
+## Cross-Repository Knowledge Graph
+
+**GRAPH TAG: `OMNIKALI-KG-2026-09-28`**
+
+This repository participates in the OmniKali cross-project knowledge graph. **Future AI agents MUST read the graph before making cross-repository architectural changes.** It records repository ownership, dependencies, validated evidence, known failure modes, development state, and consolidation rules.
+
+Graph file: [`.omnikali/project-knowledge-graph.md`](.omnikali/project-knowledge-graph.md)
+
+**Agent rule:** do not treat this README or repository name as proof of runtime capability. Verify against tests, acceptance evidence, production contracts, and live behavior. Preserve restore points before risky changes, make the smallest atomic change, record evidence and timestamps, and update the graph whenever architecture, ownership, dependencies, proof, or failure knowledge changes.
