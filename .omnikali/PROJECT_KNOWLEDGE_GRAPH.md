@@ -363,3 +363,18 @@ If a repository contains this marker, the agent MUST:
 
 ---
 **Maintenance note:** This snapshot reflects the repository investigation performed on 2026-09-28. It is deliberately timestamped. Future agents must append/update evidence rather than silently rewriting history.
+
+
+## 14. DECtalk + SUPERSOUND integration evidence — 2026-10-03
+
+**Change class:** INTEGRATION
+
+- **PROVEN:** PR #1 integrated the SUPERSOUND Three.js/WebGL superformula renderer into the authoritative `dectalk-live` source while preserving DECtalk WASM synthesis and the existing cross-origin-isolation path.
+- **PROVEN:** The visualizer consumes the existing DECtalk playback `AnalyserNode`; it does not introduce microphone loopback or a second playback graph.
+- **PROVEN:** Main integration commit: `7300008623914b1bc5f9ed9d7ffa1520b3c457bf`.
+- **PROVEN:** GitHub Pages deployment commit: `94cc942ae386bb19facd4aabff8a110c58538a5f`.
+- **PROVEN:** On 2026-10-03 the public Pages endpoint served the integrated `DECtalk · SUPERSOUND` HTML and `supersound.js`; the deployed `app.js` and `supersound.js` both passed Node syntax checks from the Grasshopper workstation, and the pinned Three.js module endpoint returned HTTP 200 with CORS enabled.
+- **PROVEN:** Failure isolation is explicit: if the optional WebGL/Three.js layer cannot initialize, DECtalk speech remains available and the UI reports a visualizer fallback.
+- **PLANNED / NOT YET PROVEN:** Hardware/browser-specific WebGL frame-rate and live audio-reactive behavior should continue to be acceptance-tested on target mobile browsers; the implementation includes adaptive mobile mesh density, frame pacing, DPR reduction, and reduced-motion handling, but those performance outcomes are device-dependent.
+
+**Ownership:** `dectalk-live` remains the authoritative source for this integration; `gh-pages` remains its publication surface. Do not move visualizer logic into the account-level `onnxscibroccoli.github.io` publication repository.
