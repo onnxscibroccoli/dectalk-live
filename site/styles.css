@@ -362,3 +362,11 @@ footer { font-size: 0.75rem; color: var(--subtle); line-height: 1.6; padding-bot
 @media (prefers-reduced-motion: reduce) {
   .band-meter b { transition: none; }
 }
+
+.visualizer-fallback {
+  margin: 0;
+  padding: 2rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
