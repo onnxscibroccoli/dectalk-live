@@ -2,7 +2,7 @@
 
 **Status:** Published browser-based speech synthesizer  
 **Repository:** `onnxscibroccoli/dectalk-live`  
-**Documentation snapshot:** 2026-09-28 23:12 EDT
+**Documentation snapshot:** 2026-10-03 EDT
 
 DECtalk Live is an in-browser DECtalk speech-synthesis demonstration. It runs the synthesis engine in the browser through WebAssembly rather than sending text to a remote speech service.
 
@@ -14,7 +14,10 @@ The published application provides:
 - speaking-rate control;
 - phoneme markup;
 - WAV download;
-- browser-local synthesis.
+- browser-local synthesis;
+- SUPERSOUND 3D Gielis-superformula visualization driven directly by the DECtalk playback AnalyserNode;
+- live shape, deformation, FFT weighting, material, color-mapping, and wireframe controls;
+- adaptive mobile rendering quality with reduced-motion support.
 
 The implementation uses `@echogarden/dectalk-wasm`.
 
@@ -28,7 +31,25 @@ There are seven tracked files:
 - `site/bridge-worker.js` — worker bridge.
 - `site/coi-serviceworker.js` — cross-origin-isolation support.
 - `site/favicon.svg` — icon.
+- `site/supersound.js` — Three.js/WebGL superformula renderer; it consumes the existing Web Audio analyser and does not own synthesis/playback.
 - `README.md` — project documentation.
+
+## SUPERSOUND audio path
+
+The visualizer is an integration layer, not a second audio subsystem:
+
+```text
+DECtalk WASM -> synthesized WAV -> HTMLAudioElement -> MediaElementSource
+                                               |
+                                               v
+                                          AnalyserNode
+                                           /        \
+                                  speakers          SUPERSOUND
+```
+
+The existing DECtalk playback graph remains authoritative. `site/supersound.js` only reads FFT/time-domain samples from that analyser. If the Three.js CDN import or WebGL initialization fails, speech synthesis and playback continue and the page shows a visualizer fallback.
+
+On lower-power/mobile devices the visualizer uses fewer superformula vertices, a lower device-pixel-ratio ceiling, less frequent normal recomputation, and a reduced idle frame rate.
 
 ## Why the service worker matters
 

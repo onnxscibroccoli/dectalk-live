@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>DECtalk</title>
-    <meta name="description" content="In-browser DECtalk speech synthesizer. Nine voices, phoneme markup, WebAssembly." />
+    <title>DECtalk · SUPERSOUND</title>
+    <meta name="description" content="In-browser DECtalk speech synthesizer with an audio-reactive 3D superformula visualizer. Nine voices, phoneme markup, WebAssembly and WebGL." />
     <meta name="theme-color" content="#0c0d0b" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <link rel="stylesheet" href="./styles.css" />
@@ -22,10 +22,11 @@
           <h1>DECtalk</h1>
           <p class="lede">
             The Digital Equipment Corporation speech synthesizer, compiled to
-            WebAssembly. Nine voices, phoneme markup, entirely in the browser.
+            WebAssembly. Nine voices, phoneme markup, entirely in the browser —
+            now coupled directly to an audio-reactive SUPERSOUND WebGL surface.
           </p>
         </div>
-        <div class="status" id="status">
+        <div class="status" id="status" role="status" aria-live="polite">
           <span class="dot boot"></span>
           <span class="label">Loading DECtalk</span>
         </div>
@@ -68,10 +69,97 @@
         </div>
       </section>
 
+      <section class="panel visualizer-panel" id="visualizer" aria-labelledby="visualizer-title">
+        <div class="visualizer-head">
+          <div>
+            <p class="kicker supersound-kicker">SUPERSOUND · WEB AUDIO · WEBGL</p>
+            <h2 class="visualizer-title" id="visualizer-title">Voice geometry</h2>
+            <p class="note visualizer-note">DECtalk audio is analyzed directly in the existing Web Audio graph. No microphone loopback is used.</p>
+          </div>
+          <div class="visualizer-stats" aria-live="polite">
+            <span id="viz-source" class="viz-badge">WAITING</span>
+            <span id="viz-fps" class="tabular">-- FPS</span>
+          </div>
+        </div>
+
+        <div id="supersound-stage" class="supersound-stage" role="img" aria-label="Interactive audio-reactive three-dimensional superformula visualization. Drag to rotate and use the mouse wheel to zoom."></div>
+
+        <div class="band-meters" aria-label="DECtalk frequency energy">
+          <div class="band-meter"><span>LOW</span><i><b id="viz-low-meter"></b></i></div>
+          <div class="band-meter"><span>MID</span><i><b id="viz-mid-meter"></b></i></div>
+          <div class="band-meter"><span>HIGH</span><i><b id="viz-high-meter"></b></i></div>
+        </div>
+
+        <details class="viz-controls" open>
+          <summary>Live parameters</summary>
+          <div class="viz-controls-body">
+            <div class="viz-control-row preset-row-viz">
+              <label class="viz-field viz-grow" for="viz-preset">Shape preset
+                <select id="viz-preset">
+                  <option value="orbital">Orbital</option>
+                  <option value="chrysalis">Chrysalis</option>
+                  <option value="starforge" selected>Starforge</option>
+                  <option value="bloom">Bloom</option>
+                  <option value="crystal">Crystal</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </label>
+              <button class="secondary compact-viz" id="viz-randomize" type="button">Randomize</button>
+            </div>
+
+            <div class="viz-grid two">
+              <label class="viz-range">m longitude <output data-viz-output="viz-m1">10.0</output><input id="viz-m1" type="range" min="0" max="16" step="0.1" value="10"></label>
+              <label class="viz-range">m latitude <output data-viz-output="viz-m2">6.0</output><input id="viz-m2" type="range" min="0" max="16" step="0.1" value="6"></label>
+              <label class="viz-range">n1 longitude <output data-viz-output="viz-n11">0.18</output><input id="viz-n11" type="range" min="0.08" max="3" step="0.01" value="0.18"></label>
+              <label class="viz-range">n1 latitude <output data-viz-output="viz-n21">0.22</output><input id="viz-n21" type="range" min="0.08" max="3" step="0.01" value="0.22"></label>
+              <label class="viz-range">n2 longitude <output data-viz-output="viz-n12">1.90</output><input id="viz-n12" type="range" min="0.1" max="4" step="0.05" value="1.9"></label>
+              <label class="viz-range">n2 latitude <output data-viz-output="viz-n22">1.35</output><input id="viz-n22" type="range" min="0.1" max="4" step="0.05" value="1.35"></label>
+              <label class="viz-range">n3 longitude <output data-viz-output="viz-n13">1.90</output><input id="viz-n13" type="range" min="0.1" max="4" step="0.05" value="1.9"></label>
+              <label class="viz-range">n3 latitude <output data-viz-output="viz-n23">1.35</output><input id="viz-n23" type="range" min="0.1" max="4" step="0.05" value="1.35"></label>
+            </div>
+
+            <div class="viz-rule"></div>
+            <div class="viz-grid two">
+              <label class="viz-range">Deformation <output data-viz-output="viz-deform">0.72</output><input id="viz-deform" type="range" min="0" max="1.5" step="0.01" value="0.72"></label>
+              <label class="viz-range">Formula morph <output data-viz-output="viz-morph">0.18</output><input id="viz-morph" type="range" min="0" max="1" step="0.01" value="0.18"></label>
+              <label class="viz-range">Sensitivity <output data-viz-output="viz-sensitivity">1.35</output><input id="viz-sensitivity" type="range" min="0.25" max="3" step="0.05" value="1.35"></label>
+              <label class="viz-range">FFT smoothing <output data-viz-output="viz-smoothing">0.80</output><input id="viz-smoothing" type="range" min="0" max="0.95" step="0.01" value="0.8"></label>
+              <label class="viz-range">Low <output data-viz-output="viz-low-weight">1.10</output><input id="viz-low-weight" type="range" min="0" max="2" step="0.05" value="1.1"></label>
+              <label class="viz-range">Mid <output data-viz-output="viz-mid-weight">0.85</output><input id="viz-mid-weight" type="range" min="0" max="2" step="0.05" value="0.85"></label>
+              <label class="viz-range">High <output data-viz-output="viz-high-weight">0.70</output><input id="viz-high-weight" type="range" min="0" max="2" step="0.05" value="0.7"></label>
+              <label class="viz-range">Audio color drive <output data-viz-output="viz-color-drive">0.82</output><input id="viz-color-drive" type="range" min="0" max="1" step="0.01" value="0.82"></label>
+            </div>
+
+            <div class="viz-color-row">
+              <label>Low <input id="viz-color1" type="color" value="#5ee7ff"></label>
+              <label>Mid <input id="viz-color2" type="color" value="#9b6cff"></label>
+              <label>High <input id="viz-color3" type="color" value="#ff4fd8"></label>
+            </div>
+
+            <div class="viz-grid two">
+              <label class="viz-field" for="viz-color-mode">Color mapping
+                <select id="viz-color-mode">
+                  <option value="spectrum">Spectrum + energy</option>
+                  <option value="bands">Frequency bands</option>
+                  <option value="latitude" selected>Latitude gradient</option>
+                  <option value="pulse">Transient pulse</option>
+                </select>
+              </label>
+              <label class="viz-range">Outer glow <output data-viz-output="viz-glow">0.15</output><input id="viz-glow" type="range" min="0" max="0.6" step="0.01" value="0.15"></label>
+              <label class="viz-range">Metalness <output data-viz-output="viz-metalness">0.48</output><input id="viz-metalness" type="range" min="0" max="1" step="0.01" value="0.48"></label>
+              <label class="viz-range">Roughness <output data-viz-output="viz-roughness">0.26</output><input id="viz-roughness" type="range" min="0.02" max="1" step="0.01" value="0.26"></label>
+            </div>
+
+            <label class="viz-check"><input id="viz-wireframe" type="checkbox"> Wireframe overlay mode</label>
+            <p class="viz-help">Speak with DECtalk to drive the surface. Drag the render to rotate · wheel to zoom · double-click to reset view.</p>
+          </div>
+        </details>
+      </section>
+
       <footer>
         Powered by
         <a href="https://github.com/echogarden-project/dectalk-wasm" rel="noreferrer" target="_blank">@echogarden/dectalk-wasm</a>.
-        Voices and markup match the original DECtalk US English engine.
+        SUPERSOUND uses Three.js and the Web Audio API locally in your browser.
       </footer>
     </main>
     <script type="module" src="./app.js"></script>
