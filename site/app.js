@@ -58,6 +58,8 @@ let audio = null;
 let objectUrl = null;
 let audioCtx = null;
 let analyser = null;
+let waveData = null;
+let visualizer = null;
 let playing = false;
 let busy = false;
 
@@ -142,10 +144,16 @@ function wavToBlob(wav) {
 
 function ensureGraph(el) {
   if (!audioCtx) {
-    audioCtx = new AudioContext();
+    const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextCtor) throw new Error("Web Audio API is not supported in this browser.");
+    audioCtx = new AudioContextCtor();
     const source = audioCtx.createMediaElementSource(el);
     analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 1024;
+    analyser.fftSize = 2048;
+    analyser.minDecibels = -92;
+    analyser.maxDecibels = -10;
+    analyser.smoothingTimeConstant = 0.8;
+    waveData = new Uint8Array(analyser.fftSize);
     source.connect(analyser);
     analyser.connect(audioCtx.destination);
   }
@@ -157,7 +165,7 @@ function drawWave() {
   const width = 640;
   const height = 88;
   const tick = () => {
-    const data = analyser && playing ? new Uint8Array(analyser.frequencyBinCount) : null;
+    const data = analyser && playing ? waveData : null;
     if (analyser && data) analyser.getByteTimeDomainData(data);
     const parts = [];
     for (let i = 0; i < steps; i++) {
@@ -170,6 +178,27 @@ function drawWave() {
     requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
+}
+
+
+async function startVisualizer() {
+  const stage = $("supersound-stage");
+  if (!stage) return;
+  try {
+    const { createSupersoundVisualizer } = await import("./supersound.js");
+    visualizer = createSupersoundVisualizer({
+      stage,
+      controls: $("visualizer"),
+      getAnalyser: () => analyser,
+      getAudioContext: () => audioCtx,
+      isPlaying: () => playing,
+    });
+  } catch (err) {
+    console.error("SUPERSOUND failed to initialize", err);
+    const status = $("viz-source");
+    if (status) status.textContent = "VISUAL OFF";
+    stage.innerHTML = '<p class="visualizer-fallback">3D visualizer unavailable. DECtalk speech remains active.</p>';
+  }
 }
 
 function notice(text) {
@@ -229,6 +258,7 @@ function boot() {
   renderVoices();
   renderPresets();
   drawWave();
+  void startVisualizer();
 
   $("rate").addEventListener("input", (e) => {
     rate = Number(e.target.value);
@@ -258,5 +288,10 @@ function boot() {
 
   startWorker().catch((err) => notice(err.message));
 }
+
+window.addEventListener("beforeunload", () => {
+  visualizer?.destroy?.();
+  if (objectUrl) URL.revokeObjectURL(objectUrl);
+});
 
 boot();
