@@ -9,7 +9,7 @@ from check_site_runtime import audit
 
 SITE = {
     "index.html": "<html lang='en'><main></main></html>",
-    "app.js": \"new Worker(publicUrl(\'./dectalk/bridge-worker.js\'), {type: \'module\'});\",
+    "app.js": "new Worker(publicUrl('./dectalk/bridge-worker.js'), {type: 'module'});",
     "bridge-worker.js": "const { default: initializer } = await import('./dectalk.js');",
     "coi-serviceworker.js": "self.addEventListener('fetch', ()=>{});",
     "styles.css": "body {}",
