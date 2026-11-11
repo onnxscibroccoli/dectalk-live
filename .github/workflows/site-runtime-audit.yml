@@ -36,7 +36,7 @@ jobs:
           python3 scripts/check_site_runtime.py --site site --out /tmp/dectalk-source-audit.json
           {
             echo '### Source audit (not functional browser acceptance)'
-            echo 'Assets: DECtalk JS/WASM not tracked; runtime functionality NOT_VERIFIED.'
+            echo 'main/site lacks bundled DECtalk JS/WASM; gh-pages contains a separate deployment bundle (not checked by this job). Browser playback NOT_VERIFIED.'
             echo 'License redistribution: HUMAN_REVIEW_REQUIRED; no binaries downloaded.'
             echo ''
             cat /tmp/dectalk-source-audit.json
