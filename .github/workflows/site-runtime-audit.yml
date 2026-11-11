@@ -1,0 +1,43 @@
+name: DECtalk Source and Runtime Provenance Audit
+
+on:
+  pull_request:
+    paths:
+      - 'site/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'docs/DEC_TALK_RUNTIME_GATE.md'
+      - '.github/workflows/site-runtime-audit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - '.github/workflows/site-runtime-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit-read-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout without retained credentials
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: Test missing-runtime and license-review boundaries
+        run: python3 -m unittest discover -s tests -p 'test_site_runtime.py' -v
+      - name: Record actual checked source dependencies
+        run: |
+          python3 scripts/check_site_runtime.py --site site --out /tmp/dectalk-source-audit.json
+          {
+            echo '### Source audit (not functional browser acceptance)'
+            echo 'Assets: DECtalk JS/WASM not tracked; runtime functionality NOT_VERIFIED.'
+            echo 'License redistribution: HUMAN_REVIEW_REQUIRED; no binaries downloaded.'
+            echo ''
+            cat /tmp/dectalk-source-audit.json
+          } >> "$GITHUB_STEP_SUMMARY"
