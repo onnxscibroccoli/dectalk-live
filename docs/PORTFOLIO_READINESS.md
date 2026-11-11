@@ -10,10 +10,15 @@
 
 **CI evidence:** no trustworthy workflow result was established during the initial portfolio audit. Mark NOT_VERIFIED until a run proves otherwise.
 
+Recorded 2026-11-11:
+- `main` (`a8d5a67`) has **no `.github/workflows/`** and **no `package.json`**. The source is a static `site/` directory.
+- Pages is served from the `gh-pages` branch at https://onnxscibroccoli.github.io/dectalk-live/.
+- The runtime-asset and licensing audit (WASM binaries present on `gh-pages`, unresolved FONIX license terms) is tracked separately in [draft PR #6](https://github.com/onnxscibroccoli/dectalk-live/pull/6) / [issue #5](https://github.com/onnxscibroccoli/dectalk-live/issues/5). Browser playback is NOT_VERIFIED.
+
 ## First reviewer command (check prerequisites before executing)
 
 ```sh
-npm test
+python3 -m http.server --directory site 8000   # no package.json/npm test exists; serve the static site and inspect in a browser
 ```
 
 This is a proposed reproduction command, **not a claim of executed testing**. Confirm the command exists in the current repository; record missing scripts/dependencies as NOT_VERIFIED rather than masking failures.
