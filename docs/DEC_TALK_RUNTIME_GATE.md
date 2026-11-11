@@ -1,8 +1,8 @@
 # DECtalk browser runtime: dependency and redistribution gate
 
-**As assessed 2026-11-11: NOT_VERIFIED / ASSET_MISSING / LICENSE_REVIEW_REQUIRED.**
+**As assessed 2026-11-11: DEPLOYED_ASSETS_PRESENT / BROWSER_PLAYBACK_NOT_VERIFIED / LICENSE_REVIEW_REQUIRED.**
 
-The tracked page uses `site/bridge-worker.js` to import `./dectalk.js`. The current tracked `site/` directory has no `dectalk.js` or `dectalk.wasm` binaries. GitHub Pages successfully publishing HTML, CSS and JavaScript **does not establish browser synthesis functionality**.
+The source app `site/app.js` creates a worker at `./dectalk/bridge-worker.js`; the source `site/bridge-worker.js` then imports `./dectalk.js` from the worker directory. `main/site/` includes neither the compiled `dectalk.js` nor `dectalk.wasm`, so a **naïve deployment of main/site by itself** would be incomplete. However, inspection of the **actual published `gh-pages` branch** confirms that `/dectalk/bridge-worker.js`, `/dectalk/dectalk.js` and `/dectalk/dectalk.wasm` are present, with 1,546, 83,913 and 861,440 bytes respectively. Therefore the deployed asset bundle is present, but **successful speech synthesis was not directly exercised in a browser**.
 
 The intended upstream source is `@echogarden/dectalk-wasm`, whose repository includes `wasm/dectalk.js` and `wasm/dectalk.wasm`. The package `package.json` declares `license: MIT`, but [its upstream LICENSE.md](https://github.com/echogarden-project/dectalk-wasm/blob/main/LICENSE.md) begins with proprietary ownership and copying restrictions associated with FONIX and predecessors. This difference needs authoritative provenance/legal clarification. Neither an npm package label nor public GitHub visibility is an adequate redistribution authorization for the underlying compiled speech engine.
 
@@ -15,15 +15,15 @@ python3 -m unittest discover -s tests -p 'test_site_runtime.py' -v
 python3 scripts/check_site_runtime.py --site site
 ```
 
-The first command validates the scanner and its failure examples. The second reports exact source dependency presence and always distinguishes source checks from actual browser playback. A green CI audit is **not** a green application-runtime acceptance.
+The first command validates the scanner and failure examples. The second reports what a self-contained deployment from `main/site/` lacks; it **does not check out the separately published `gh-pages` bundle** and must not be interpreted as evidence that the live published site is missing assets. The deployed branch was separately inspected through the GitHub API. A green source audit is not a completed browser acceptance.
 
 ## Correct next engineering work
 
 1. Request or confirm an explicit licensing basis for use and redistribution of the exact DECtalk source/binaries, including any dependencies inherited from FONIX/other owners.
-2. If permission exists, create a pinned, reproducible build with complete runtime, checksum and license text, then validate it in real browsers with proper cross-origin-isolation headers.
+2. If permission exists, document how the already-present gh-pages bundle was built from a pinned source, capture hashes and license text, and validate it in real browsers with proper cross-origin-isolation headers.
 3. If not, consider an independently licensed synthesis engine or the browser's native speech synthesis as a **clearly labeled alternative**, rather than marketing it as DECtalk.
 4. Verify audible speech, nine voice profiles, WAV export, keyboard operation, accessible announcements, browser mobile behavior, and the visualizer failure fallback. Capture browser/CI evidence and accessible demo.
-5. Only then change the status from `NOT_VERIFIED` and consider public artifact publication.
+5. Only then change the **browser functionality** status from `NOT_VERIFIED` and consider public artifact publication.
 
 No credentials, sound recordings, user-entered text, or model API telemetry are required for this source audit.
 
