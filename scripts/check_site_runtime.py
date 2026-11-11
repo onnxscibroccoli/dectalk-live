@@ -26,6 +26,11 @@ def audit(site: Path) -> dict:
     missing_source = sorted(set(MANDATORY_SITE) - files)
     if missing_source:
         raise ValueError("required static site source missing: " + ", ".join(missing_source))
+    # Validate source packaging contract; the deployed gh-pages branch carries
+    # the worker under /dectalk/ while source has it in site/ root.
+    app = (site / "app.js").read_text(encoding="utf-8")
+    if './dectalk/bridge-worker.js' not in app:
+        raise ValueError("app source no longer references expected deployed worker path")
     worker = (site / "bridge-worker.js").read_text(encoding="utf-8")
     if not re.search(r'import\s*\(\s*["\']\./dectalk\.js["\']\s*\)', worker):
         raise ValueError("unexpected DECtalk WASM entrypoint: update audit before changing contract")
@@ -45,14 +50,18 @@ def audit(site: Path) -> dict:
         ),
         "missing_required_runtime": bad_runtime,
         "asset_bytes": sizes,
+        "source_tree_scope": "main/site only; published gh-pages bundle is separate",
+        "published_gh_pages_bundle": "NOT_CHECKED_BY_THIS_SCRIPT",
         "license_provenance": "HUMAN_REVIEW_REQUIRED",
         "publication_authorized": False,
         "functional_browser_synthesis": "NOT_VERIFIED",
         "limitations": (
-            "A source-only Github Pages build does not prove speech startup. "
-            "Upstream package metadata says MIT, but the upstream LICENSE.md "
-            "contains proprietary DECtalk/FONIX terms. No asset redistribution "
-            "is authorized by this audit."
+            "This audit examines only main/site; published gh-pages has a separate "
+            "dectalk/ directory containing the JavaScript and WASM binaries, "
+            "confirmed by GitHub metadata but not verified in a live browser. "
+            "Upstream package metadata says MIT while upstream LICENSE.md "
+            "contains proprietary FONIX restrictions. No further asset "
+            "redistribution is authorized by this audit."
         ),
     }
 
@@ -69,7 +78,7 @@ def main() -> int:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(out + "\n", encoding="utf-8")
     if obj["runtime_integrity"] == "MISSING_OR_EMPTY":
-        print("AUDIT STATUS: runtime asset dependency missing; browser synthesis not verified",
+        print("SOURCE-ONLY AUDIT: bundled runtime absent from main/site; separate gh-pages bundle exists; browser not tested",
               file=sys.stderr)
     return 0  # audit ran; readiness is *not* a pass
 
