@@ -9,7 +9,7 @@ from check_site_runtime import audit
 
 SITE = {
     "index.html": "<html lang='en'><main></main></html>",
-    "app.js": "console.log('init')",
+    "app.js": \"new Worker(publicUrl(\'./dectalk/bridge-worker.js\'), {type: \'module\'});\",
     "bridge-worker.js": "const { default: initializer } = await import('./dectalk.js');",
     "coi-serviceworker.js": "self.addEventListener('fetch', ()=>{});",
     "styles.css": "body {}",
@@ -47,6 +47,11 @@ class SiteRuntimeAuditTest(unittest.TestCase):
     def test_missing_core_source_is_error(self):
         (self.root / "bridge-worker.js").unlink()
         with self.assertRaisesRegex(ValueError, "required static site"):
+            audit(self.root)
+
+    def test_wrong_deployed_worker_path_is_rejected(self):
+        (self.root / "app.js").write_text("new Worker('./other-worker.js')")
+        with self.assertRaisesRegex(ValueError, "deployed worker path"):
             audit(self.root)
 
     def test_changed_worker_import_is_error_until_contract_review(self):
