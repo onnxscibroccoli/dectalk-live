@@ -1,6 +1,6 @@
 # DECtalk Live
 
-**Status:** Published browser-based speech synthesizer  
+**Status:** GitHub Pages static shell published; browser speech startup **NOT_VERIFIED / BLOCKED** by missing tracked runtime assets and unresolved upstream licensing. See [source-to-runtime audit](docs/DEC_TALK_RUNTIME_GATE.md).  
 **Repository:** `onnxscibroccoli/dectalk-live`  
 **Documentation snapshot:** 2026-10-03 EDT
 
@@ -57,7 +57,7 @@ The Emscripten build uses WebAssembly threads. The browser must therefore have t
 
 ## Development cycle
 
-**PUBLISHED / SMALL STABLE DEMO.**
+**STATIC_SITE_DEPLOYED / SYNTHESIS_NOT_VERIFIED.**
 
 Recent history shows the site publishing through GitHub Pages rather than an Actions-based deployment workflow.
 
@@ -79,7 +79,7 @@ Before modifying `bridge-worker.js` or the COI service worker, understand the We
 
 Do not claim that the application supports arbitrary DECtalk voices or arbitrary browser environments without testing them. The README's nine voices are the documented supported set.
 
-**Bottom line:** a small, focused browser/WASM speech-synthesis application that is already publicly published.
+**Bottom line:** the static application source is published, but the tracked deployment lacks required WASM runtime assets; license and browser functionality require independent resolution before this can be used as a working portfolio demo.
 
 
 ## Cross-Repository Knowledge Graph
