@@ -1,5 +1,8 @@
 # DECtalk Live
 
+
+> **Technical reviewers:** [Source-linked engineering evidence and ordered next steps](docs/PORTFOLIO_READINESS.md) · [tracking issue](https://github.com/onnxscibroccoli/dectalk-live/issues/3). These records do not certify production behavior.
+
 **Status:** Published browser-based speech synthesizer  
 **Repository:** `onnxscibroccoli/dectalk-live`  
 **Documentation snapshot:** 2026-10-03 EDT
